@@ -1,0 +1,99 @@
+{% extends 'home/base.html' %}
+
+{% block content %}
+<br>
+<div class="container">
+    {% if post %}
+    <div class="post" style="width: 100%">
+        <a href="/"><span class="fas fa-fast-backward"> Back</span></a> <br><br>
+        <h4>{{ post.title }}</h4>
+        <span>@<span id="auther"> {{ post.auther }}</span></span>
+        <p>{{ post.date }}</p>
+        <hr>
+        {{ post.content|safe }}
+        {% if post.image %}
+        <img src="/media/{{post.image}}" alt="image" srcset="" width="100%"><br><br>
+        {% endif %}
+
+        <!-- Comment And Like Section -->
+        <div class="comment-like">
+            <a class="like" style="margin-right: 50px"><i class="fas fa-heart text-danger"></i> Like(0)</a>
+            <a href="#demo{{post.id}}" data-toggle='collapse'><i class="far fa-comment-alt"></i>
+                Comments({{comment|length}})</a>
+        </div>
+
+        <!-- Comment -->
+        <div id="demo{{post.id}}" class="collapse">
+            <div class="comment-body">
+                <div id="accordion">
+                    {% for c in comment %}
+                    <div class="card text-white">
+                        <div class="card-header bg-secondary">
+                            <a class="card-link text-white" data-toggle="collapse" href="#collapseOne">
+                                {% if profile.email == c.email %}
+                                <img src="/media/{{profile.pic}}" width="40px" height="40px" class="rounded-circle" alt="User Picture">
+                                {% else %}
+                                <img src="/media/profile/user.png" width="40px" height="40px" class="rounded-circle" alt="User Picture">
+                                {% endif %}
+                                <span style="margin-right: 30px">{{c.name}}</span>
+                                <span>{{c.date}}</span>
+                            </a>
+                        </div>
+                        <div id="collapseOne" class="collapse show" data-parent="#accordion">
+                            <div class="card-body bg-dark">
+                                <p>{{c.comment|safe}}</p>
+                                {% if c.name == user.username %}
+                                <a href="/delete/comment/{{c.id}}" class="text-danger"><i class="fas fa-trash"></i></a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Post Comment -->
+        <div class="">
+            <br>
+            <h4 class="text-center">Leave Comment:</h4>
+            <form action="{% url 'leave_comment' post.id %}" method="post">
+                {% csrf_token %}
+                <input type="text" hidden name="name" value="{{user.username}}" placeholder="Name...." required
+                    class="form-control">
+                <input type="email" hidden name="email" value="{{user.email}}" placeholder="abc@gmail.com" required
+                    class="form-control">
+                <div class="form-group">
+                    <!-- <lable>Comment</lable> -->
+                    <textarea name="comment" id="" cols="30" rows="3" required class="form-control"></textarea>
+                </div>
+                <button type="submit" class="btn btn-block btn-warning">Comment</button>
+            </form>
+        </div>
+    </div>
+
+    {% else %}
+    <h4 class="text-center">Sorry Something Error</h4>
+    {% endif %}
+</div>
+<br>
+<script>
+    CKEDITOR.replace('comment')
+
+    $('.like').click(function(){
+        $.ajax({
+            type: 'POST',
+            url: '/like/',
+            data : 1,
+            success : function(data){
+                console.log(data)
+            }
+        })
+    })
+
+
+</script>
+
+{% endblock %}

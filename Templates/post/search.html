@@ -1,0 +1,9 @@
+{% if posts.count > 0 %}
+{% for post in posts %}
+
+<a class="list-group-item search-item text-dark" href="{% url 'view_post' post.id %}"> {{post.title}} </a>
+
+{% endfor %}
+{% else %}
+<li class="list-group-item search-item text-dark">Search Not Found...!</li>
+{% endif %}

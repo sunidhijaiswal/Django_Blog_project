@@ -1,0 +1,136 @@
+{% extends 'home/base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="container">
+    <br>
+    {% if messages %}
+    {% for m in messages %}
+    <div class="alert alert-warning alert-dismissible text-center">
+        <button type="button" class="close" data-dismiss="alert">×</button>
+        <strong>{{m}}</strong>
+    </div>
+    {% endfor %}
+    {% endif %}
+    <h3>
+        <img src="/media/{{profile.pic}}" class="rounded-circle" width="100px" height="100px">
+        {{user.username}}
+    </h3>
+    <hr>
+    <div>
+        <ul class="list-group">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                Your Post
+                <span class="badge badge-primary badge-pill">{{post|length}}</span>
+            </li>
+        </ul>
+        <br>
+        {% for p in post %}
+        <div id="accordion" class="text-white">
+            <div class="card">
+                <div class="card-header bg-secondary">
+                    <a class="card-link text-white" data-toggle="collapse" href="#collapse{{p.id}}">
+                        <h4>{{p.title}}</h4>
+                        {{p.date}}
+                    </a>
+                </div>
+
+                <div id="collapse{{p.id}}" class="collapse" data-parent="#accordion">
+                    <div class="card-body bg-dark">
+                        {{p.content|safe}}
+                        {% if p.image %}
+                        <img src="/media/{{p.image}}" alt="image" srcset="" width="100%"><br><br>
+                        {% endif %}
+                        <!-- <a href="{% url 'delete_post' p.id %}" class="delete-post btn btn-danger" id="delete">Delete</a> -->
+                        <a href="#" data-id="{{p.id}}" class="del-post btn btn-danger" id="delete">Delete</a>                        
+                        <button class="btn btn-warning" id="update{{p.id}}" data-toggle="modal"
+                            data-target="#myModal{{p.id}}">Update</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+
+
+        <!-- The Modal -->
+        <div class="modal" id="myModal{{p.id}}">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+
+                    <!-- Modal Header -->
+                    <div class="modal-header">
+                        <h4 class="modal-title">Edit Post</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+
+                    <!-- Modal body -->
+                    <div class="modal-body">
+
+                        <form method="post" action="{% url 'edit_post' p.id %}" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label for="">Title</label>
+                                <input type="text" name="title" value="{{p.title}}" maxlength="500" required=""
+                                    id="id_title" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="">Content</label>
+                                <textarea name="content" id="id_content{{p.id}}" cols="30" rows="10"
+                                    class="form-control" required>{{ p.content|safe }}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="">Author</label>
+                                <input type="text" name="auther" readonly value="{{ p.auther }}" maxlength="20"
+                                    required="" id="id_auther" class="form-control">
+                            </div>
+                            <!-- {% if post.image %}
+                            <div class="form-group">
+                                <label for="">Uploaded ScreenShot</label>
+                                <input type="file" name="image" id="id_image" class="form-control-file border">
+                            </div>
+                            {% endif %} -->
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </form>
+                    </div>
+                    <script>
+                        CKEDITOR.replace('id_content{{p.id}}')
+                    </script>
+                </div>
+            </div>
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+
+</div>
+
+<script>
+    $('.del-post').on('click', function () {
+        // return confirm("Are You sure Want To Delete This Account Permanently...!!!")
+        var id = $(this).data('id')
+        swal({
+            title: "Are you sure ?",
+            text: "You will not be able to recover Post...!",
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonClass: "btn-danger",
+            confirmButtonText: "Yes, delete it!",
+            cancelButtonText: "No, cancel plz!",
+            closeOnConfirm: false,
+            closeOnCancel: false
+        },
+            function (isConfirm) {
+                console.log(isConfirm)
+                if (isConfirm) {
+                    swal("Deleted!", "Your Account has been Deleted.", "success");
+                    window.location = '/delete_post/'+id+'|urlencode[: safe_chars]'
+                } else {
+                    swal("Cancelled", "Your Post is safe :)", "error");
+                }
+            });
+    })
+</script>
+
+{% endblock %}

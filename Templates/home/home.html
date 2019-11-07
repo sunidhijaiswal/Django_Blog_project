@@ -1,0 +1,71 @@
+{% extends 'home/base.html' %}
+
+{% block content %}
+<br>
+<div class="container">
+    {% if messages %}
+    {% for m in messages %}
+    <div class="alert alert-success alert-dismissible text-center">
+        <button type="button" class="close" data-dismiss="alert">×</button>
+        <strong>{{m}}</strong>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <!-- Search -->
+    <h3>Search</h3>
+    {% csrf_token %}
+    <input type="text" id="search" name="search-text" placeholder="Search...." class="form-control">
+    <ul id="search-results" class="list-group">
+            Now
+    </ul>
+    <br>
+    {% if post %}
+    {% for p in post %}
+    <div class="post post-animation">
+        <a href="{% url 'view_post' p.id %}">
+            <h4>{{ p.title }}</h4>
+        </a>
+        <span>@{{p.auther}}</span>
+        <p>{{p.date}}</p>
+        {{p.content|safe|truncatewords:20}}
+        {% if p.image %}
+        <img src="/media/{{ p.image }}" alt="{{p.title}}" srcset="" width="100%">
+        {% endif %}
+
+
+        <!-- Read More -->
+        <a href="{% url 'view_post' p.id %}">Read More.....</a>
+    </div><br>
+    {% endfor %}
+    {% else %}
+    <h4 class="text-center">No Post Yet</h4>
+    {% endif %}
+</div>
+<br>
+
+<script>
+    $(function () {
+        $('#search-results').hide()
+        $('#search').keyup(function () {
+            $('#search-results').show()
+            $.ajax({
+                type: 'POST',
+                url: '/search',
+                data: {
+                    'search-text': $('#search').val(),
+                    'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()
+                },
+                success: searchSuccess,
+                dataType: 'html'
+            });
+        });
+    });
+
+    function searchSuccess(data, textStatus, jqXHR) {
+        $('#search-results').html(data);
+    }
+</script>
+
+
+{% endblock %}

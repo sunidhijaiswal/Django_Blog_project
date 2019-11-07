@@ -1,0 +1,26 @@
+{% extends 'home/base.html' %}
+{% load static %}
+{% block content %}
+<div class="container">
+    <br>
+    {% if messages %}
+    {% for m in messages %}
+    <div class="alert alert-success alert-dismissible text-center">
+        <button type="button" class="close" data-dismiss="alert">×</button>
+        <strong>{{m}}</strong>
+    </div>
+    {% endfor %}
+    {% endif %}
+    <h3>Update Picture</h3>
+    <hr>
+    <img src="/media/{{detail.pic}}" width="100px" height="100px">
+    <form action="{% url 'change_picture' %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="">Update Picture</label>
+            <input type="file" name="pic" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-warning">Change</button>
+    </form>
+</div>
+{% endblock %}
